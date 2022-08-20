@@ -26,10 +26,11 @@
                 <p>{{ post.body | safe() }}</p>
 
                 <!-- Edit post -->
+                {% if current_user.id == 1 %}
                     <div class="d-flex justify-content-end mb-4"><a
                             class="btn btn-primary text-uppercase"
                             href="{{ url_for('edit_post', post_id=post.id) }}">Edit Post</a></div>
-
+                {% endif %}
             </div>
         </div>
     </div>

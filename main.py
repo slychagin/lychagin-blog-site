@@ -1,48 +1,72 @@
 import datetime
 import smtplib
 import bleach
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, URL
-from flask_ckeditor import CKEditor, CKEditorField
+from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
+from flask_gravatar import Gravatar
+from flask_ckeditor import CKEditor
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import relationship
+from forms import CreatePostForm, RegisterForm, LoginForm
+from functools import wraps
 
 
 my_email = 'slychagin@yahoo.com'
 password = 'tppqvaywjyegvgfd'
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA5O6donzAlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = '5a01beb4fb2a01c4c2ff2a8308409c5669b2eb19f414c314d24fb3893920c10a'
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+# DECORATOR FOR FORBIDDEN PAGES
+def admin_only(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        if current_user.is_anonymous or current_user.id != 1:
+            return abort(403)
+        return function(*args, **kwargs)
+    return wrapper
+
+
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-# CONFIGURE TABLE
+# CREATE blog_post TABLE
 class BlogPost(db.Model):
+    __tablename__ = 'blog_posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(250), unique=True, nullable=False)
-    subtitle = db.Column(db.String(250), nullable=False)
+    date = db.Column(db.String(250), nullable=False)
+    body = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(250), nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-    body = db.Column(db.Text, nullable=False)
-    date = db.Column(db.String(250), nullable=False)
+    subtitle = db.Column(db.String(250), nullable=False)
 
 
-# WTForm
-class CreatePostForm(FlaskForm):
-    title = StringField('Blog Post Title', validators=[DataRequired()])
-    subtitle = StringField('Subtitle', validators=[DataRequired()])
-    author = StringField('Your Name', validators=[DataRequired()])
-    img_url = StringField('Blog Image URL', validators=[DataRequired(), URL()])
-    body = CKEditorField('Blog Content', validators=[DataRequired()])
-    submit = SubmitField('Submit Post')
+# CREATE the User TABLE
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(250))
+
+# db.create_all()
 
 
 # Strips invalid tags/attributes
@@ -70,6 +94,61 @@ def get_all_posts():
     return render_template('index.html', all_posts=posts)
 
 
+# CREATE NEW USER
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=request.form.get('email')).first()
+
+        if user:
+            flash("You've already signed up with that email, log in instead!")
+            return redirect(url_for('login'))
+
+        hash_and_salted_password = generate_password_hash(
+            form.password.data,
+            method='pbkdf2:sha256',
+            salt_length=8
+        )
+
+        new_user = User(
+            email=request.form.get('email'),  # type: ignore
+            password=hash_and_salted_password,  # type: ignore
+            name=request.form.get('name')  # type: ignore
+        )
+        db.session.add(new_user)
+        db.session.commit()
+
+        login_user(new_user)
+        return redirect(url_for('get_all_posts'))
+    return render_template("register.html", form=form)
+
+
+# LOG IN USER
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=request.form.get('email')).first()
+
+        if not user:
+            flash("That email does not exist, please try again.")
+            return redirect(url_for('login'))
+        elif not check_password_hash(user.password, request.form.get('password')):
+            flash("Password incorrect, please try again.")
+            return redirect(url_for('login'))
+        else:
+            login_user(user)
+            return redirect(url_for('get_all_posts'))
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('get_all_posts'))
+
+
 # RENDER POST USING DB
 @app.route('/post/<int:post_id>')
 def read_post(post_id):
@@ -77,8 +156,20 @@ def read_post(post_id):
     return render_template('post.html', post=requested_post)
 
 
+@app.route('/about')
+def about_page():
+    return render_template('about.html')
+
+
+@app.route('/contact')
+def contact_page():
+    return render_template('contact.html')
+
+
 # CREATE NEW POST
-@app.route('/new-post', methods=["GET", "POST"])
+@app.route('/new-post', methods=['GET', 'POST'])
+@admin_only
+@login_required
 def add_new_post():
     form = CreatePostForm()
     blog_post_date = datetime.datetime.now().strftime('%B %d, %Y')
@@ -87,6 +178,7 @@ def add_new_post():
             title=request.form.get('title'),
             subtitle=request.form.get('subtitle'),
             author=request.form.get('author'),
+            # author=current_user,
             img_url=request.form.get('img_url'),
             body=strip_invalid_html(request.form.get('body')),
             date=blog_post_date
@@ -99,6 +191,8 @@ def add_new_post():
 
 # EDIT POST
 @app.route('/edit-post/<int:post_id>', methods=["GET", "POST"])
+@admin_only
+@login_required
 def edit_post(post_id):
     post = BlogPost.query.get(post_id)
     edit_form = CreatePostForm(
@@ -121,21 +215,12 @@ def edit_post(post_id):
 
 # DELETE POST
 @app.route('/delete/<int:post_id>')
+@admin_only
 def delete_post(post_id):
     post_to_delete = BlogPost.query.get(post_id)
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('get_all_posts'))
-
-
-@app.route('/about')
-def about_page():
-    return render_template('about.html')
-
-
-@app.route('/contact')
-def contact_page():
-    return render_template('contact.html')
 
 
 @app.route('/contact', methods=['GET', 'POST'])
@@ -162,4 +247,4 @@ def send_email(name, email, phone, message):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
