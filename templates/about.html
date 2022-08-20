@@ -1,0 +1,36 @@
+{% include "header.html" %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url({{ url_for ('static', filename='img/about-bg.jpg') }})">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="page-heading">
+                    <h1>About Me</h1>
+                    <span class="subheading">This is what I do.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Main Content-->
+<main class="mb-4">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <p>Hello, my name is Sergey! I am a beginner Python Developer. In 2021, I decided to change my
+                    specialization and become a programmer (before that I worked in logistics).
+                    My choice fell on Python because it is easy to learn, concise, has many libraries and a large
+                    community of programmers.</p>
+                <p>So, the first lines of code, the first small applications, and I understand that programming is what I
+                    like, what I'm good at doing. And now I'm already making the first web applications on Flask.
+                    And now the number one goal is to get a job as a Python Developer and in two years to reach the
+                    Middle level.</p>
+                <p>I also enjoy cycling, fitness and love to travel. This blog site is designed to capture thoughts,
+                    interesting events, etc.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% include "footer.html" %}
