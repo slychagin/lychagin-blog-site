@@ -9,9 +9,8 @@ from flask_gravatar import Gravatar
 from flask_ckeditor import CKEditor
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
-from forms import CreatePostForm, RegisterForm, LoginForm
+from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from functools import wraps
-
 
 my_email = 'slychagin@yahoo.com'
 password = 'tppqvaywjyegvgfd'
@@ -23,6 +22,9 @@ Bootstrap(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=False, force_lower=False, use_ssl=False,
+                    base_url=None)
 
 
 @login_manager.user_loader
@@ -50,12 +52,14 @@ db = SQLAlchemy(app)
 class BlogPost(db.Model):
     __tablename__ = 'blog_posts'
     id = db.Column(db.Integer, primary_key=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    author = relationship('User', back_populates='posts')
     title = db.Column(db.String(250), unique=True, nullable=False)
+    subtitle = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    author = db.Column(db.String(250), nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-    subtitle = db.Column(db.String(250), nullable=False)
+    comments = relationship('Comment', back_populates='parent_post')
 
 
 # CREATE the User TABLE
@@ -65,6 +69,20 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100))
     name = db.Column(db.String(250))
+    posts = relationship('BlogPost', back_populates='author')
+    comments = relationship('Comment', back_populates='comment_author')
+
+
+# CREATE COMMENTS TABLE
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    comment_author = relationship('User', back_populates='comments')
+    post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id'))
+    parent_post = relationship('BlogPost', back_populates='comments')
+    text = db.Column(db.Text, nullable=False)
+
 
 # db.create_all()
 
@@ -143,6 +161,7 @@ def login():
     return render_template('login.html', form=form)
 
 
+# LOG OUT USER
 @app.route('/logout')
 def logout():
     logout_user()
@@ -150,20 +169,24 @@ def logout():
 
 
 # RENDER POST USING DB
-@app.route('/post/<int:post_id>')
+@app.route('/post/<int:post_id>', methods=['GET', 'POST'])
 def read_post(post_id):
     requested_post = BlogPost.query.get(post_id)
-    return render_template('post.html', post=requested_post)
-
-
-@app.route('/about')
-def about_page():
-    return render_template('about.html')
-
-
-@app.route('/contact')
-def contact_page():
-    return render_template('contact.html')
+    form = CommentForm()
+    if form.validate_on_submit():
+        if current_user.is_authenticated:
+            new_comment = Comment(
+                author_id=current_user.id,
+                post_id=requested_post.id,
+                text=strip_invalid_html(request.form.get('comment_text'))
+            )
+            db.session.add(new_comment)
+            db.session.commit()
+            form.comment_text.data = ""
+        else:
+            flash("You need to login or register to comment.")
+            return redirect(url_for('login'))
+    return render_template('post.html', form=form, post=requested_post)
 
 
 # CREATE NEW POST
@@ -177,8 +200,7 @@ def add_new_post():
         new_post = BlogPost(
             title=request.form.get('title'),
             subtitle=request.form.get('subtitle'),
-            author=request.form.get('author'),
-            # author=current_user,
+            author_id=current_user.id,
             img_url=request.form.get('img_url'),
             body=strip_invalid_html(request.form.get('body')),
             date=blog_post_date
@@ -198,14 +220,12 @@ def edit_post(post_id):
     edit_form = CreatePostForm(
         title=post.title,
         subtitle=post.subtitle,
-        author=post.author,
         img_url=post.img_url,
         body=post.body
     )
     if edit_form.validate_on_submit():
         post.title = request.form.get('title')
         post.subtitle = request.form.get('subtitle')
-        post.author = request.form.get('author')
         post.img_url = request.form.get('img_url')
         post.body = request.form.get('body')
         db.session.commit()
@@ -223,6 +243,28 @@ def delete_post(post_id):
     return redirect(url_for('get_all_posts'))
 
 
+# DELETE COMMENT
+@app.route('/delete-comment/<int:post_id>/<int:comment_id>', methods=['GET', 'POST'])
+@login_required
+def delete_comment(post_id, comment_id):
+    comment_to_delete = Comment.query.get(comment_id)
+    db.session.delete(comment_to_delete)
+    db.session.commit()
+    return redirect(url_for('read_post', post_id=post_id))
+
+
+# RENDER ABOUT PAGE
+@app.route('/about')
+def about_page():
+    return render_template('about.html')
+
+
+# RENDER CONTACT PAGE
+@app.route('/contact')
+def contact_page():
+    return render_template('contact.html')
+
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
@@ -233,6 +275,14 @@ def contact():
 
 
 def send_email(name, email, phone, message):
+    """
+    This function send message on admin email
+    :param name: User name
+    :param email: User email
+    :param phone: User phone
+    :param message: User's message
+    :return: None
+    """
     with smtplib.SMTP('smtp.mail.yahoo.com', port=587) as connection:
         connection.starttls()
         connection.login(user=my_email, password=password)
@@ -242,7 +292,7 @@ def send_email(name, email, phone, message):
                                 f'Name: {name}\n'
                                 f'Email: {email}\n'
                                 f'Phone: {phone}\n'
-                                f'Message: {message}'
+                                f'Message: {message}'.encode('utf-8')
                             )
 
 

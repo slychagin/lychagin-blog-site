@@ -1,4 +1,5 @@
 {% include "header.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 <!-- Page Header-->
 <header class="masthead" style="background-image: url({{ post.img_url }})">
@@ -10,7 +11,7 @@
                     <h2 class="subheading">{{ post.subtitle }}</h2>
                     <span class="meta">
                         Posted by
-                        <a href="#!">{{ post.author }}</a>
+                        <a href="#!">{{ post.author.name }}</a>
                         on {{ post.date }}
                     </span>
                 </div>
@@ -27,10 +28,55 @@
 
                 <!-- Edit post -->
                 {% if current_user.id == 1 %}
-                    <div class="d-flex justify-content-end mb-4"><a
-                            class="btn btn-primary text-uppercase"
-                            href="{{ url_for('edit_post', post_id=post.id) }}">Edit Post</a></div>
+                <div class="d-flex justify-content-end mb-4"><a
+                        class="btn btn-primary text-uppercase"
+                        href="{{ url_for('edit_post', post_id=post.id) }}">Edit Post</a></div>
                 {% endif %}
+
+                <!-- Divider-->
+                <hr class="my-4"/>
+
+                <!-- Comment form-->
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                            aria-hidden="true">&times;</span>
+                    </button>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                {{ ckeditor.load() }}
+                {{ ckeditor.config(name='comment_text') }}
+                {{ wtf.quick_form(form, novalidate=True, button_map={'submit': 'primary'}) }}
+
+                <div class="col-lg-12 col-md-10 comment">
+                    {% for comment in post.comments: %}
+                    <ul class="commentList">
+                        <li>
+                            <div class="commenterImage">
+                                <img src="{{ comment.comment_author.email | gravatar }}"/>
+                            </div>
+                            <div class="commentText">
+                                {{comment.text|safe}}
+                                <span class="date sub-text">{{comment.comment_author.name}}</span>
+                                {% if comment.author_id == current_user.id or current_user.id == 1 %}
+                                <a class="delComment"
+                                   href="{{ url_for('delete_comment', post_id=post.id, comment_id=comment.id) }}">Delete
+                                    Comment</a>
+                                {% endif %}
+
+                            </div>
+                        </li>
+                    </ul>
+                    {% endfor %}
+                </div>
+
             </div>
         </div>
     </div>
