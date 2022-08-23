@@ -11,12 +11,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from functools import wraps
+import os
+from dotenv import load_dotenv
 
-my_email = 'slychagin@yahoo.com'
-password = 'tppqvaywjyegvgfd'
+load_dotenv(override=True)
+
+my_email = os.environ.get('MY_EMAIL')
+password = os.environ.get('YAHOO_PASSWORD')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '5a01beb4fb2a01c4c2ff2a8308409c5669b2eb19f414c314d24fb3893920c10a'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
