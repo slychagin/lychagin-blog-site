@@ -21,7 +21,7 @@ email_recipient = os.environ.get('MAIL_RU_EMAIL')
 password = os.environ.get('YAHOO_PASSWORD')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = '5a01beb4fb2a01c4c2ff2a8308409c5669b2eb19f414c314d24fb3893920c10a'
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
