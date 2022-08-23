@@ -11,21 +11,17 @@ The functionality of the site includes the following features:
 
 ### Website at work:
 
-#### .
+#### Site appierance.
 ![site_appiearance](https://github.com/slychagin/lychagin-blog-site/blob/master/gifs/Site%20appearance.gif)
 
-#### .
+#### Registration, log in, log out.
 ![registration_login](https://github.com/slychagin/lychagin-blog-site/blob/master/gifs/Registration%20and%20log%20in.gif)
 
-
-
-#### .
+#### Create, edit, delete post. Add comments.
 ![create_edit_delete_post](https://github.com/slychagin/lychagin-blog-site/blob/master/gifs/Create%20edit%20delete%20post.gif)
 
-#### .
-
-
-
+#### Send email to contact with site owner.
+![send_email](https://github.com/slychagin/lychagin-blog-site/blob/master/gifs/Send%20email.gif)
 
 ### Technologies:
 - Python 3, HTML, CSS;
@@ -36,4 +32,5 @@ The functionality of the site includes the following features:
 - `git clone https://github.com/slychagin/my-blog-site.git`;
 - you must have Python 3 installed on your computer;
 - install all requirements from requirements.txt;
+- enter any secret key for Flask to work;
 - `python main.py`.
