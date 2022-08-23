@@ -48,7 +48,11 @@ def admin_only(function):
 
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+URI = os.environ.get('DATABASE_URL')
+if URI.startswith('postgres://'):
+    URI = URI.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -89,7 +93,7 @@ class Comment(db.Model):
     text = db.Column(db.Text, nullable=False)
 
 
-# db.create_all()
+db.create_all()
 
 
 # Strips invalid tags/attributes
