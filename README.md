@@ -12,16 +12,18 @@ The functionality of the site includes the following features:
 ### Website at work:
 
 #### .
+![site_appiearance](https://github.com/slychagin/lychagin-blog-site/blob/master/gifs/Site%20appearance.gif)
 
+#### .
+![registration_login](https://github.com/slychagin/lychagin-blog-site/blob/master/gifs/Registration%20and%20log%20in.gif)
 
 
 
 #### .
-
-
-
+![create_edit_delete_post](https://github.com/slychagin/lychagin-blog-site/blob/master/gifs/Create%20edit%20delete%20post.gif)
 
 #### .
+
 
 
 
