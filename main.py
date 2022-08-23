@@ -21,7 +21,7 @@ email_recipient = os.environ.get('MAIL_RU_EMAIL')
 password = os.environ.get('YAHOO_PASSWORD')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '5a01beb4fb2a01c4c2ff2a8308409c5669b2eb19f414c314d24fb3893920c10a'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
@@ -48,7 +48,7 @@ def admin_only(function):
 
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///blog.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
