@@ -1,4 +1,4 @@
-# my-blog-site
+# My Blog
 ### My first website written in Flask
 
 The frontend of the website is based on the Bootstrap Clear Blog. Backend implemented in Flask.
