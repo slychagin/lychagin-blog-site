@@ -16,7 +16,8 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-my_email = os.environ.get('MY_EMAIL')
+email_sender = os.environ.get('YAHOO_EMAIL')
+email_recipient = os.environ.get('MAIL_RU_EMAIL')
 password = os.environ.get('YAHOO_PASSWORD')
 
 app = Flask(__name__)
@@ -289,9 +290,9 @@ def send_email(name, email, phone, message):
     """
     with smtplib.SMTP('smtp.mail.yahoo.com', port=587) as connection:
         connection.starttls()
-        connection.login(user=my_email, password=password)
-        connection.sendmail(from_addr=my_email,
-                            to_addrs='lychagin.sergey@mail.ru',
+        connection.login(user=email_sender, password=password)
+        connection.sendmail(from_addr=email_sender,
+                            to_addrs=email_recipient,
                             msg=f'Subject: Message from my blog\n\n'
                                 f'Name: {name}\n'
                                 f'Email: {email}\n'
