@@ -277,32 +277,32 @@ def contact_page():
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
-        data = request.form
-        send_email(data['name'], data['email'], data['phone'], data['message'])
+        # data = request.form
+        # send_email(data['name'], data['email'], data['phone'], data['message'])
         return render_template('contact.html', msg_sent=True)
     return render_template('contact.html', msg_sent=False)
 
 
-def send_email(name, email, phone, message):
-    """
-    This function send message on admin email
-    :param name: User name
-    :param email: User email
-    :param phone: User phone
-    :param message: User's message
-    :return: None
-    """
-    with smtplib.SMTP('smtp.mail.yahoo.com', port=587) as connection:
-        connection.starttls()
-        connection.login(user=email_sender, password=password)
-        connection.sendmail(from_addr=email_sender,
-                            to_addrs=email_recipient,
-                            msg=f'Subject: Message from my blog\n\n'
-                                f'Name: {name}\n'
-                                f'Email: {email}\n'
-                                f'Phone: {phone}\n'
-                                f'Message: {message}'.encode('utf-8')
-                            )
+# def send_email(name, email, phone, message):
+#     """
+#     This function send message on admin email
+#     :param name: User name
+#     :param email: User email
+#     :param phone: User phone
+#     :param message: User's message
+#     :return: None
+#     """
+#     with smtplib.SMTP('smtp.mail.yahoo.com', port=587) as connection:
+#         connection.starttls()
+#         connection.login(user=email_sender, password=password)
+#         connection.sendmail(from_addr=email_sender,
+#                             to_addrs=email_recipient,
+#                             msg=f'Subject: Message from my blog\n\n'
+#                                 f'Name: {name}\n'
+#                                 f'Email: {email}\n'
+#                                 f'Phone: {phone}\n'
+#                                 f'Message: {message}'.encode('utf-8')
+#                             )
 
 
 if __name__ == '__main__':
