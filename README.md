@@ -1,4 +1,6 @@
 # My Blog
+### Deployed on Heroku:
+https://serhio-blog.herokuapp.com
 ### My first website written in Flask
 
 The frontend of the website is based on the Bootstrap Clear Blog. Backend implemented in Flask.
@@ -33,4 +35,5 @@ The functionality of the site includes the following features:
 - you must have Python 3 installed on your computer;
 - install all requirements from requirements.txt;
 - enter any secret key for Flask to work;
-- `python main.py`.
+- `python main.py`;
+- or go to https://serhio-blog.herokuapp.com
