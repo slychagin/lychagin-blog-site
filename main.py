@@ -1,5 +1,6 @@
 import datetime
 import smtplib
+import sys
 import bleach
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
@@ -12,6 +13,7 @@ from sqlalchemy.orm import relationship
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from functools import wraps
 import os
+import locale
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -48,7 +50,7 @@ def admin_only(function):
 
 
 # CONNECT TO DB
-URI = os.environ.get('DATABASE_URL')
+URI = os.environ.get('DATABASE_URL', "sqlite:///blog.db")
 if URI.startswith('postgres://'):
     URI = URI.replace('postgres://', 'postgresql://', 1)
 
@@ -205,6 +207,11 @@ def read_post(post_id):
 def add_new_post():
     form = CreatePostForm()
     blog_post_date = datetime.datetime.now().strftime('%B %d, %Y')
+    if sys.platform == 'win32':
+        locale.setlocale(locale.LC_ALL, 'rus_rus')
+    else:
+        locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
+
     if form.validate_on_submit():
         new_post = BlogPost(
             title=request.form.get('title'),

@@ -24,7 +24,7 @@
 <!-- Navigation-->
 <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
     <div class="container px-4 px-lg-5">
-        <a class="navbar-brand" href="{{ url_for('get_all_posts') }}">Sergey's Blog</a>
+        <a class="navbar-brand" href="{{ url_for('get_all_posts') }}">Serhio's Blog</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
                 aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             Menu
@@ -33,20 +33,20 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto py-4 py-lg-0">
                 <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4"
-                                        href="{{ url_for('get_all_posts') }}">Home</a></li>
+                                        href="{{ url_for('get_all_posts') }}">Дом</a></li>
 
                 {% if not current_user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('login') }}">Login</a>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('login') }}">Вход</a>
                 </li>
                 <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4"
-                                        href="{{ url_for('register') }}">Register</a></li>
+                                        href="{{ url_for('register') }}">Регистрация</a></li>
                 {% else %}
-                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('logout') }}">Log Out</a>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('logout') }}">Выход</a>
                 </li>
                 {% endif %}
                 <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4"
-                                        href="{{ url_for('about_page') }}">About</a></li>
-                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('contact_page') }}">Contact</a>
+                                        href="{{ url_for('about_page') }}">Обо мне</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('contact_page') }}">Контакты</a>
                 </li>
             </ul>
         </div>

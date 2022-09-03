@@ -10,9 +10,8 @@
                     <h1>{{ post.title }}</h1>
                     <h2 class="subheading">{{ post.subtitle }}</h2>
                     <span class="meta">
-                        Posted by
                         <a href="#!">{{ post.author.name }}</a>
-                        on {{ post.date }}
+                        {{ post.date }}
                     </span>
                 </div>
             </div>
@@ -30,7 +29,7 @@
                 {% if current_user.id == 1 %}
                 <div class="d-flex justify-content-end mb-4"><a
                         class="btn btn-primary text-uppercase"
-                        href="{{ url_for('edit_post', post_id=post.id) }}">Edit Post</a></div>
+                        href="{{ url_for('edit_post', post_id=post.id) }}">Редактировать</a></div>
                 {% endif %}
 
                 <!-- Divider-->
@@ -67,8 +66,7 @@
                                 <span class="date sub-text">{{comment.comment_author.name}}</span>
                                 {% if comment.author_id == current_user.id or current_user.id == 1 %}
                                 <a class="delComment"
-                                   href="{{ url_for('delete_comment', post_id=post.id, comment_id=comment.id) }}">Delete
-                                    Comment</a>
+                                   href="{{ url_for('delete_comment', post_id=post.id, comment_id=comment.id) }}">Удалить комментарий</a>
                                 {% endif %}
 
                             </div>

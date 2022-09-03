@@ -5,30 +5,30 @@ from flask_ckeditor import CKEditorField
 
 
 class CreatePostForm(FlaskForm):
-    title = StringField('Blog Post Title', validators=[DataRequired()])
-    subtitle = StringField('Subtitle', validators=[DataRequired()])
-    img_url = StringField('Blog Image URL', validators=[DataRequired(), URL()])
-    body = CKEditorField('Blog Content', validators=[DataRequired()])
-    submit = SubmitField('Submit Post')
+    title = StringField('Заголовок поста', validators=[DataRequired(message='Это поле обязательно.')])
+    subtitle = StringField('Подзаголовок', validators=[DataRequired(message='Это поле обязательно.')])
+    img_url = StringField('Ссылка на фото', validators=[DataRequired(message='Это поле обязательно.'), URL()])
+    body = CKEditorField('Содержание поста', validators=[DataRequired(message='Это поле обязательно.')])
+    submit = SubmitField('Разместить пост')
 
 
 class RegisterForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(),
-                                             Email(message='Invalid email address.')])
-    password = PasswordField('Password', validators=[DataRequired(),
+    email = StringField('Электронная почта', validators=[DataRequired(message='Это поле обязательно.'),
+                                             Email(message='Неверный почтовый адрес.')])
+    password = PasswordField('Пароль', validators=[DataRequired(message='Это поле обязательно.'),
                                                      Length(min=8,
-                                                            message='Field must be at least 8 characters long.')])
-    name = StringField('Name', validators=[DataRequired()])
-    submit = SubmitField('Sign Me Up!')
+                                                            message='Пароль должен быть не менее 8-ми символов.')])
+    name = StringField('Имя', validators=[DataRequired(message='Это поле обязательно.')])
+    submit = SubmitField('Зарегистрировать!')
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email(message='Invalid email address.')])
-    password = PasswordField('Password', validators=[DataRequired(),
-                                                     Length(min=8, message='Field must be at least 8 characters long.')])
-    submit = SubmitField('Let Me In!')
+    email = StringField('Электронная почта', validators=[DataRequired(message='Это поле обязательно.'), Email(message='Неверный почтовый адрес.')])
+    password = PasswordField('Пароль', validators=[DataRequired(message='Это поле обязательно.'),
+                                                     Length(min=8, message='Пароль должен быть не менее 8-ми символов.')])
+    submit = SubmitField('Войти!')
 
 
 class CommentForm(FlaskForm):
-    comment_text = CKEditorField('Comment', validators=[DataRequired()])
-    submit = SubmitField('Submit Comment')
+    comment_text = CKEditorField('Комментарий', validators=[DataRequired(message='Это поле обязательно.')])
+    submit = SubmitField('Разместить комментарий')
