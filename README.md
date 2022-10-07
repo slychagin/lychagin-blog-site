@@ -5,7 +5,7 @@ https://serhio-blog.herokuapp.com
 
 The frontend of the website is based on the Bootstrap Clear Blog. Backend implemented in Flask.
 The functionality of the site includes the following features:
-- reegister a new user and save it into database;
+- register a new user and save it into database;
 - log in and log out;
 - admin can post, edit and delete posts (all these operations are stored in the database);
 - all registered users can leave comments under the posts, and also delete their own comments;
